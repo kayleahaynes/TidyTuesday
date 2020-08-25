@@ -16,6 +16,7 @@ library(ggtext)
 library(ggforce)
 library(stringi)
 
+
 # load data --------------------------------------------------------------------
 message("Load data")
 
@@ -183,3 +184,4 @@ create_menu <- function(seed = 12){
 }
 
 create_menu(250820)
+ggsave('Week35_chopped.png')
