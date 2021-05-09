@@ -102,22 +102,24 @@ gg_ethiopia_hex <-
                      name="Proportion",
                      guide = guide_colorbar(label.position = "bottom", title.position = 'top', barwidth = 10)) +
   labs(title = "Proportion of unavailable water",
-       subtitle = "The number of water sources where no water is available when reported / the total number of water sources reported within the regions") +
+       subtitle = stringr::str_wrap("The number of water sources where no water is available when reported / the total number of water sources reported within the regions", 80),
+       caption = "TidyTuesday: Week 19 · Source: Water Point Data Exchange · Graphic: Kaylea Haynes") +
   theme(plot.title = element_text(family = "anton",
                                   face = "bold",
-                                  size = 24,
+                                  size = 32,
                                   hjust = 0.5,
                                   margin = margin(10,0,10,0)),
         plot.subtitle = element_text(family = "roboto_light",
                                      size = 18,
                                      hjust = 0.5,
                                      margin = margin(10,0,10,0)),
+        plot.caption = element_text(family = "roboto_light",
+                                    size = 12,
+                                    hjust = 0),
         legend.position = c(0.8,0.8),
         legend.direction = "horizontal",
-        legend.title=element_text(color="black", size=14, family = "roboto_light", hjust = 0.5),
-        legend.text = element_text(size=10, family = "roboto_light", hjust = 0.5),
-        plot.margin = margin(10,0,20,0)
-  )
+        legend.title=element_blank(),
+        legend.text = element_text(size=10, family = "roboto_light", hjust = 0.5))
 
 # bar chart of water sources in Ethiopia
 
@@ -138,22 +140,22 @@ gg_ethiopia_water_source_bar_chart <-
   xlab("Number of water sources") +
   ylab("") +
   labs(title = "Water source types",
-       subtitle = "This is a count of all recorded water source types") +
+       subtitle = "Count of all recorded water source types") +
   theme(plot.title = element_text(family = "anton",
                                   face = "bold",
                                   size = 18,
                                   hjust = 0.5),
         plot.subtitle = element_text(family = "roboto_light",
-                                     size = 16,
+                                     size = 18,
                                      hjust = 0.5),
         axis.text = element_text(family = "roboto_light",
-                                 size = 14),
+                                 size = 16),
         axis.title = element_text(family = "roboto",
-                                  size = 14),
+                                  size = 16),
         legend.position = c(0.85,0.5),
         legend.direction = "vertical",
-        legend.title=element_text(color="black", size=14, family = "roboto_light", hjust = -1),
-        legend.text = element_text(size=14, family = "roboto_light"),
+        legend.title=element_text(color="black", size=16, family = "roboto_light", hjust = -1),
+        legend.text = element_text(size=16, family = "roboto_light"),
         plot.margin = margin(10,0,10,-50)
   )
 
@@ -171,26 +173,24 @@ gg_ethiopia_not_avail_reason <-
   xlab("Count of sources") +
   ylab("") +
   labs(title = "Reasons for unavailable water",
-       subtitle = "This is a count of all recorded reasons for water being unavailable at source") +
+       subtitle = "Count of all recorded reasons for water being unavailable at source") +
   theme(plot.title = element_text(family = "anton",
                                   face = "bold",
-                                  size = 18,
+                                  size = 20,
                                   hjust = 0.5),
         plot.subtitle = element_text(family = "roboto_light",
-                                     size = 16,
+                                     size = 18,
                                      hjust = 0.5),
         axis.text = element_text(family = "roboto_light",
-                                 size = 14),
+                                 size = 16),
         axis.title = element_text(family = "roboto",
-                                  size = 14),
+                                  size = 16),
         legend.position = c(0.95,0.5),
         legend.direction = "vertical",
-        legend.title=element_text(color="black", size=14, family = "roboto_light", hjust = -1),
+        legend.title=element_text(color="black", size=16, family = "roboto_light", hjust = -1),
         legend.text = element_text(size=10, family = "roboto_light"),
         plot.margin = margin(10,0,10,-50)
   )
-# combine the 3 plots using patchwork
-#
 
 gg_ethiopia_water_source_bar_chartA <- ggplotGrob(gg_ethiopia_water_source_bar_chart)
 gg_ethiopia_not_avail_reasonA <- ggplotGrob(gg_ethiopia_not_avail_reason)
@@ -199,6 +199,7 @@ gg_ethiopia_water_source_bar_chartA$widths[2:5] <- as.list(maxWidth)
 gg_ethiopia_not_avail_reasonA$widths[2:5] <- as.list(maxWidth)
 
 ggsave("week19_2.png", grid.arrange(gg_ethiopia_hex , gg_ethiopia_water_source_bar_chartA, gg_ethiopia_not_avail_reasonA,
-                                  widths = c(1.5,1),
+                                  widths = c(1,1),
                                   layout_matrix = rbind(c(1, 2),
-                                                        c(1, 3)), top = textGrob("Water sources in Ethiopia recorded in 2021", gp=gpar(fontfamily ="anton", cex = 6))), width = 28, height = 12, dpi = 320)
+                                                        c(1, 3)), top = textGrob("Water sources in Ethiopia reported in 2021", gp=gpar(fontfamily ="anton", cex = 6))), width = 24, height = 12, dpi = 320)
+

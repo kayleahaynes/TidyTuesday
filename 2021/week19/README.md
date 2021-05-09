@@ -39,6 +39,9 @@ Can extend the analysis to look at different areas. One thing I noticed was the 
 </p>
 
 # Water sources in Ethiopia recorded in 2021
+
+The data is very sparse and one thing I noted was not all water sources are recorded at the same time. In Ethiopia there was a large number of records added in 2021 so I filtered the data to see how this compares. Note the scales are different than before. I noticed some work on the Water Point Data Exchange to predict whether water is available or not using machine learning. 
+
 <p align="center">
   <img src="https://github.com/kayleahaynes/TidyTuesday/blob/master/2021/week19/week19_2.png" width="1000">
 </p>
