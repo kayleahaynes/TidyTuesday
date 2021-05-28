@@ -48,6 +48,6 @@ df_matthias <- data.frame(df_records_nc_expanded) %>%
 df_matthias %>%
   ggplot() +
   geom_line(aes(x = date, y = n)) +
-  labs(y = "Date",
-       x = "Number of records",
+  labs(x = "Date",
+       y = "Number of records",
        title = "Number of WRs held by Matthias")
