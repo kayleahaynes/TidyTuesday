@@ -175,11 +175,11 @@ gg_slopegraph <- df_broadband_by_state_relative %>%
     <span style=\'color:#BF0A2F;\'>broadband usage</span>
     </span>",
        subtitle = stringr::str_wrap("Broadband availability comes from the FCC which is a notoriously inaccurate survey drawn from ISPs’ own descriptions of the areas they serve. In comparison broadband usage comes from an anonymised dataset Microsoft have collected through its cloud services network. The longer the lines the larger the difference between the % of the population with broadband \"available\" and the % of the population using broadband", 120),
-       caption = "TidyTuesday: Week 20 · Source: Broadband usage from Microsoft by way of The Verge, state population from zipcodeR package  · Graphic: Kaylea Haynes") +
+       caption = stringr::str_wrap("TidyTuesday: Week 20 · Source: Broadband usage from Microsoft by way of The Verge, state population from zipcodeR package  · Graphic: Kaylea Haynes", 80)) +
   theme(plot.title = element_markdown(hjust = 0.5, size = 24, face = "bold"),
-        plot.caption = element_markdown(),
+        plot.caption = element_text(),
         plot.subtitle = element_text(size =14, colour = "grey", hjust = 0.5),
-        text = element_text(family = "PT Sans Caption"),
+        text = element_text(family = "PT Sans Caption", size = 14),
         legend.position = "none")
 
 ggsave("week20_3.png", gg_slopegraph, width = 12, height = 10, dpi = 320)
