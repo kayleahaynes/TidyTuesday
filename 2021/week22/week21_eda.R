@@ -31,18 +31,25 @@ df_records_nc <- df_records %>%
 # second idea is to take each record and replicate for the duration. Going to
 # use data table to do this
 
-df_records_nc_expanded <- setDT(df_records_nc)[ , list(track = track,
+df_records_nc_to_expand <-  df_records_nc %>%
+  filter(record_duration > 1)
+
+df_records_nc_no_expand <-  df_records_nc %>%
+  filter(record_duration <= 1)
+
+df_records_nc_expanded <- setDT(df_records_nc_to_expand)[ , list(track = track,
                              type = type,
                              player = player,
                              time = time,
                              record_duration = record_duration,
-                             date = seq(date, date+record_duration, by = "day")), by = 1:nrow(df_records_nc)]
+                            date = seq(date, date+record_duration-1, by = "day")), by = 1:nrow(df_records_nc_to_expand)]
+
+df_combine <- bind_rows(df_records_nc_expanded, df_records_nc_no_expand)
 
 # convert back to a dataframe and count how many WR's MR has on each day. Don't include the times where he is then beaten on the same day
 
-df_matthias <- data.frame(df_records_nc_expanded) %>%
-  filter(player == "MR",
-         record_duration > 0) %>%
+df_matthias <- data.frame(df_combine) %>%
+  filter(player == "MR") %>%
   count(date)
 
 df_matthias %>%
