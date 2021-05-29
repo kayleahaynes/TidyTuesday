@@ -32,10 +32,10 @@ df_records_nc <- df_records %>%
 # use data table to do this
 
 df_records_nc_to_expand <-  df_records_nc %>%
-  filter(record_duration > 1)
+  filter(record_duration > 0)
 
 df_records_nc_no_expand <-  df_records_nc %>%
-  filter(record_duration <= 1)
+  filter(record_duration <= 0)
 
 df_records_nc_expanded <- setDT(df_records_nc_to_expand)[ , list(track = track,
                              type = type,
