@@ -58,3 +58,78 @@ df_matthias %>%
   labs(x = "Date",
        y = "Number of records",
        title = "Number of WRs held by Matthias")
+
+# some more creative plots instead of the line plot
+# -- summary plots looking at the total number of records held and over which tracks.
+df_matthias %>%
+  ggplot(aes(x = date, y = 1, fill = n)) +
+  geom_tile() +
+  scale_fill_distiller(palette = "Spectral", limits = c(0,32),
+                       breaks = c(0, 16, 32), direction = -1) +
+  theme(
+    # main plotting theme -------------------------
+    text = element_text(family = "Helvetica Neue"),
+    plot.background = element_rect(fill = "black", color = "black"),
+    plot.title = element_text(lineheight = 1.1, hjust = 0.5, colour = "white"),
+    plot.title.position = "panel",
+    plot.caption = element_text(hjust = 1, face= "italic", color = "white"),
+    panel.background = element_rect(fill = "black", color = "black"),
+    panel.grid = element_blank(),
+
+    # axes ---------------------------------
+    # axis.line,
+
+    axis.ticks = element_blank(),
+    axis.title.x = element_text(color = "white",
+                                size = rel(1)),
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(color = "white",
+                               size = rel(0.8)),
+    axis.text.y = element_blank(),
+
+    # legend ------------------------------------
+    legend.position = "none"
+  )
+
+df_matthias_all <- data.frame(df_combine) %>%
+  filter(player == "MR") %>%
+  mutate(year = year(date),
+         day_month = format.Date(date, "%m-%d"))
+
+alpha <- ifelse(df_matthias_all$type == "Three Lap", 0.9, 0.5)
+
+df_matthias_all %>%
+  ggplot(aes(x = day_month, y = paste(track, type))) +
+  geom_point(aes(col = track, shape = type, alpha = alpha)) +
+  facet_wrap(~year, ncol = 1) +
+  scale_shape_manual(values=c(15, 15)) +
+  labs(x = "Date",
+       y = "") +
+  theme(
+    # main plotting theme -------------------------
+    text = element_text(family = "Helvetica Neue"),
+    plot.background = element_rect(fill = "black", color = "black"),
+    plot.title = element_text(lineheight = 1.1, hjust = 0.5, colour = "white"),
+    plot.title.position = "panel",
+    plot.caption = element_text(hjust = 1, face= "italic", color = "white"),
+    panel.background = element_rect(fill = "black", color = "black"),
+    panel.grid = element_blank(),
+
+    # axes ---------------------------------
+    # axis.line,
+
+    axis.ticks = element_blank(),
+    axis.title.x = element_text(color = "white",
+                              size = rel(1)),
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(color = "white",
+                             size = rel(0.8)),
+    axis.text.y = element_blank(),
+
+    # legend ------------------------------------
+    legend.position = "none",
+    strip.placement = "none",
+    strip.text.x = element_blank()
+  )
+
+ggsave("test.png")

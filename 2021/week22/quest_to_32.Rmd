@@ -1,0 +1,203 @@
+---
+title: "Quest to 31/32"
+author: "Kaylea"
+date: "08/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(treemap)
+library(treemapify)
+```
+
+```{r plot_theme}
+custom_theme <- theme_minimal() + 
+  theme(
+    plot.background = element_rect(fill = "black", color = "black"), 
+    panel.grid = element_blank(), 
+    axis.text = element_text(color = "white"), 
+    title = element_text(color = "white"),
+    legend.position = "None", 
+    legend.text = element_text(color = "white")
+    )
+```
+
+# Introduction 
+
+TidyTuesday 2021 week 22 looked at Mario Kart World Records for the classic racing game on the Nintendo 64. SummoningSalt shared a video in which they looked at one player in particular (Matthias) quest to try and get all 32 non shortcut world records. As a non gamer I suprisingly found myself really hooked on Matthias' journey so have decided to illustrate his quest through some data visualisations. Buckle in. 
+
+## Mario Kart 64
+
+Mario Kart 64 was released in 1996 and is still actively played by many with new world records achieved every month. The game consists of 16 individual tracks and world records can be achieved for the fastest single lap or the fastest completed race (three laps). Also, through the years, players discovered shortcuts in many of the tracks. Fortunately, shortcut and non-shortcut world records are listed separately.
+
+Furthermore, the Nintendo 64 was released for NTSC- and PAL-systems. On PAL-systems, the game runs a little slower. All times in this dataset are PAL-times, but they can be converted back to NTSC-times. Many of the world records (particularly the most recent ones) are achieved using PAL-systems since the slower motion allows for more accurate driving. 
+
+```{r the_data}
+# load the data 
+tuesdata <- tidytuesdayR::tt_load(2021, week = 22)
+df_records <- tuesdata$records
+
+# for each day get the track record and the player record (note this comes from @ZykeZero, the challenge we had was dealing with ties on each day)
+
+df_track_records <- df_records %>% 
+  select(track, type, shortcut, date, time) %>% 
+  group_by(track, type, shortcut) %>% 
+  complete(nesting(track, type, shortcut), date = seq.Date(from = min(date), to = as.Date("2021-02-25"), by = "day")) %>% 
+  fill(time, .direction = "down")
+
+df_player_track_times <- df_records %>% 
+  select(player, track, type, shortcut, date, time) %>% 
+  split(.$player) %>% 
+  map(~ .x %>% 
+        group_by(player, track, type, shortcut) %>% 
+        complete(nesting(player, track, type, shortcut), date = seq.Date(from = min(date), to = as.Date("2021-02-25"), by = "day")) %>% 
+        fill(time, .direction = "down"))
+
+df_daily_player_track_records <- bind_rows(df_player_track_times) %>% 
+  inner_join(df_track_records, by = c("track", "type", "shortcut", "date", "time"))
+```
+
+# The start of the alliance 
+
+On the 5th December 2013 Matthias (MR) held 28/32 records. Other players decided to form an alliance (A1A) to try and stop Matthias from achieving 32/32 world records. 
+
+```{r records_held_051213_barplot}
+
+df_daily_player_track_records %>% 
+  filter(date == '2013-12-05', shortcut == "No") %>% 
+  ungroup() %>% 
+  count(player, sort = TRUE) %>% 
+  ggplot(aes(x = n, y = fct_reorder(player, n))) + 
+    geom_bar(stat = "identity", aes(fill = player)) + 
+  labs(y = "Player", 
+       x = "Number of records", 
+       title = "Number of World Records Held", 
+       subtitle = "On the 12th December 2013") + 
+  custom_theme
+```
+Matthias held the world record for all courses except Moo Moo Farm 1 lap, Moo Moo Farm 3 lap, D.K.'s Jungle Parkway 3 lap and Toad's Turnpike 1 lap. 
+
+```{r matthias_records_051213_treemap}
+
+df_matthias_051213 <- df_daily_player_track_records %>% 
+  filter(player == "MR", date == "2013-12-05", shortcut == "No") %>% 
+  inner_join(df_records %>% 
+               select(player, time, date) %>% 
+               distinct() %>% 
+               rename(date_set = date), by = c("player", "time")) %>% 
+  mutate(days_held = as.numeric(date - date_set))
+  
+alpha <- ifelse(df_matthias_051213$type == "Three Lap", 1, 0)
+
+df_matthias_051213 %>% 
+  ggplot(aes(area = days_held, fill = track, subgroup = track)) + 
+  geom_treemap(aes(alpha = alpha)) + 
+  geom_treemap_subgroup_border(colour = "black") + 
+  scale_alpha_continuous(range = c(0.5, 1)) + 
+    geom_treemap_subgroup_text(place = "centre",
+                                                         grow = T,
+                                                         alpha = 0.5,
+                                                         colour = "black",
+                                                         min.size = 0) + 
+  custom_theme + 
+  labs(title = "Matthias' records as of the 5th December 2013",
+        subtitle = "Boxes are sized based on number of days a record has been held. \n Lighter shades are 1 lap records and the darker shades are the 3 lap records", 
+       caption = "The only records Matthias is missing are: 
+       Moo Moo Farm 1 lap, Moo Moo Farm 3 lap, D.K.'s Jungle Parkway 3 lap and Toad's Turnpike 1 lap")
+```
+On Moo Moo farm TJL is a course specialist. 
+
+```{r number_of_times_players_held_records_on_courses}
+
+df_records %>% 
+  filter(shortcut == "No", date <= "2013-12-05") %>% 
+  group_by(track, type) %>% 
+  mutate(player = fct_lump(player, 5)) %>% 
+  group_by(track, type, player) %>% 
+  count() %>% 
+  group_by(player) %>% 
+  mutate(total_player_records = sum(n)) %>% 
+  ggplot() + 
+  geom_point(aes(x = fct_reorder(player, total_player_records, .desc = TRUE), y = paste(track, type), size = n), col = "white") + 
+  geom_point(data = . %>% filter(player == "TJL"), aes(x = player, y = paste(track, type), size = n), col = "pink") + 
+  labs(y = "Track and Type", 
+       x = "Player", 
+       title = "Number of records held on each track", 
+       subtitle = "Top 5 players on each track as of the 5th December 2013", 
+       caption = "TJL is a \"course specialist\" on Moo Moo farm") + 
+  custom_theme + 
+  theme(axis.text.x = element_text(angle = 90), 
+        legend.position = "right", 
+        legend.text = element_text(color = "white")) + 
+  guides(size=guide_legend(title="Number of records"))
+
+```
+
+He once got a time of 27.82 "a time he described as a once in a lifetime record"
+
+```{r moomoofarmrecords}
+
+df_records %>% 
+  filter(shortcut == "No", track == "Moo Moo Farm", type == "Single Lap") %>% 
+  ggplot() + 
+  geom_line(aes(x = date, y = time), col = "white") + 
+  geom_point(aes(x = date, y = time), col = "white") + 
+  geom_vline(aes(xintercept = date), data = . %>% filter(time == 27.82) %>% head(1), col = "pink") + 
+  custom_theme + 
+  labs(y = "Record Time", 
+       x = "Date", 
+       title = "World Records for Moo Moo Farm 1 lap", 
+       subtitle = "Highlighted time is TJL's 27.82 \"Once in a lifetime record\"", 
+       caption = "TJL was correct in the fact he hasn't beaten his 27.82 record on Moo Moo farm 1 lap 
+       however this time has been equalised by MR and beaten by abney317")
+```
+
+Lacey dominates D.K's jungle parkway, he has held the record for over 10 years, 14 times in a row. 
+
+```{r longest_held_records}
+df_records %>% 
+  filter(shortcut == "No") %>% 
+  arrange(desc(record_duration)) %>% 
+  mutate(beaten_date = date + record_duration) %>% 
+  head(20) %>% 
+  ggplot() + 
+  geom_point(aes(x = date, y = fct_reorder(paste(track, type, player), record_duration), col = record_duration)) + 
+  geom_point(aes(x = beaten_date, y = paste(track, type, player), col = record_duration)) + 
+  geom_segment(aes(x = date, xend = beaten_date, y =  paste(track, type, player), yend = paste(track, type, player), col = record_duration)) + 
+  scale_color_viridis_c(option = "C") + 
+  custom_theme + 
+  theme(legend.position = "right") + 
+  labs(x = "Date", 
+       y = "Record", 
+       title = "Longest held non shortcut records") + 
+  guides(fill=guide_legend(title="Record Duration (days)"))
+```
+
+```{r longest_held_consecutive_records}
+df_records %>% 
+  filter(shortcut == "No") %>% 
+  group_by(track, type) %>% 
+  mutate(consecutive_player = ifelse())
+  
+  
+
+
+
+
+  arrange(desc(record_duration)) %>% 
+  mutate(beaten_date = date + record_duration) %>% 
+  head(20) %>% 
+  ggplot() + 
+  geom_point(aes(x = date, y = fct_reorder(paste(track, type, player), record_duration), col = record_duration)) + 
+  geom_point(aes(x = beaten_date, y = paste(track, type, player), col = record_duration)) + 
+  geom_segment(aes(x = date, xend = beaten_date, y =  paste(track, type, player), yend = paste(track, type, player), col = record_duration)) + 
+  scale_color_viridis_c(option = "C") + 
+  custom_theme + 
+  theme(legend.position = "right") + 
+  labs(x = "Date", 
+       y = "Record", 
+       title = "Longest held non shortcut records") + 
+  guides(fill=guide_legend(title="Record Duration (days)"))
+```
