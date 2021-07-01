@@ -35,17 +35,19 @@ df_data %>%
   mutate(total = sum(average)) %>%
   ggplot(aes(x = month, y = average, group = fct_reorder(animal_group_parent, average), fill = animal_group_parent)) +
   geom_col(width = 0.98, col = "black", size = 0.1) +
-  geom_text(aes(y = total + 8, label = month), size  = 3) +
+  geom_text(aes(y = total + 8, label = month), size  = 2) +
   coord_polar() +
   facet_wrap(~year2020, strip.position="bottom") +
   theme_void() +
   labs(title = "Average number of animals rescued",
        subtitle = "Pre 2020 vs 2020",
        y = "",
-       x = "") +
+       x = "",
+       caption = "#TidyTuesday week 27 | source: London Fire Brigade | datavis: @kayleahaynes") +
   theme(plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5,
                                      margin = margin(10,0,30,0)),
+        plot.caption = element_text(size = 8, margin = margin(30,0,0,0)),
         panel.border = element_blank(),
         legend.position = "top",
         panel.grid = element_line(size = 0.05),
@@ -55,4 +57,4 @@ df_data %>%
         plot.background = element_rect(fill = "white", color = "white")) +
   scale_fill_manual(values = c("#d1b490", "#8aa8a1", "#885a89", "#ee7b30", "#cbcbd4"), name = "")
 
-ggsave("week27.png")
+ggsave("week27.png", height = 5, width = 10)
