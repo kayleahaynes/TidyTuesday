@@ -137,7 +137,6 @@ estimate <- exp(holdout$inla_pred)
 
 sqrt(mean((log(truth + 1) - log(estimate + 1))^2))
 
-
 # predict on the test set -------------------------------------------------
 
 # stack for prediction stk.p
