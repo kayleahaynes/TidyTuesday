@@ -4,9 +4,6 @@
 library(tidyverse)
 library(tidymodels)
 library(INLA)
-library(tidytext)
-library(textrecipes)
-library(stopwords)
 
 theme_set(theme_light())
 
