@@ -66,7 +66,7 @@ ggplot(df_monster_movies_genre_agg, aes(y = grouped_genres, x = count, fill = av
   theme(plot.title = element_text(family = "butcherman", color = "purple"), 
         legend.position = "right",  
         legend.direction = "vertical") + 
-  scale_fill_gradient(low = "lightgreen", high = "#006400")
+  scale_fill_gradient(low = light_color, high = dark_color)
 
 ggsave(file.path("2024", "week44", "plot.png"),
     width = 12, height = 8)
