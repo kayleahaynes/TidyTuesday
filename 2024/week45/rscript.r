@@ -15,8 +15,8 @@ showtext_auto()
 
 # Colours -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-democratic_color <- "#006400"    # Dark shade
-non_democratic_color <- "#90EE90"   # Lighter shade
+democratic_color <- "#006400"    
+non_democratic_color <- "#90EE90"   
 
 # Load data ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ ggplot(df_democracy_data_changed_countries,
   labs(
     title = "Democracy Status by Country and Year",
     subtitle = "<span style='color:blue;'>Democratic</span> and <span style='color:red;'>Non-Democratic</span> status.",
-    caption = "#TidyTuesday 2024 week 45 | dataviz by @kayleahaynes | Source: demography_data",
+    caption = "#TidyTuesday 2024 week 45 | dataviz by @kayleahaynes | Source: democracy_data",
     x = "Year",
     y = "Country",
     fill = "Democracy Status"
